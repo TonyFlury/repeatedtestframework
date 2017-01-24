@@ -1,6 +1,7 @@
-from repeatedtestframework import RepeatedTestFramework,\
+from .repeatedtestframework import RepeatedTestFramework,\
                                     skip,\
                                     skipIf,\
                                     skipUnless,\
-                                    expectedFailure,\
-                                    __version__
+                                    expectedFailure
+from . import version
+from .version import __version__

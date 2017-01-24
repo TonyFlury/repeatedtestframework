@@ -13,26 +13,7 @@ Testable Statements :
     ...
 """
 
-from version import __version__
-
-__author__ = "Tony Flury anthony.flury@btinternet.com"
-__created__ = "18 Jan 2017"
-
-#!/usr/bin/env python
-# coding=utf-8
-"""
-# Advent2016 : Implementation of framework.py
-
-Summary :
-    <summary of module/class being implemented>
-Use Case :
-    As a <actor> I want <outcome> So that <justification>
-
-Testable Statements :
-    Can I <Boolean statement>
-    ....
-"""
-from version import __version__ as __version__
+from . version import __version__ as __version__
 __author__ = 'Tony Flury : anthony.flury@btinternet.com'
 __created__ = '17 Jan 2017'
 
