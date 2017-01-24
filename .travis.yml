@@ -11,4 +11,4 @@ install:
   - pip install -r test_requirements.txt
 # command to run tests
 script:
-   - python setup.py test
+   - codecov
