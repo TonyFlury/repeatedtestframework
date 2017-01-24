@@ -1,8 +1,16 @@
+=========================================
+Repeated Test Framework - License for use
+=========================================
+
+::
+
                                  Apache License
                            Version 2.0, January 2004
                         http://www.apache.org/licenses/
 
-   TERMS AND CONDITIONS FOR USE, REPRODUCTION, AND DISTRIBUTION
+
+TERMS AND CONDITIONS FOR USE, REPRODUCTION, AND DISTRIBUTION
+------------------------------------------------------------
 
    1. Definitions.
 
@@ -173,9 +181,12 @@
       incurred by, or claims asserted against, such Contributor by reason
       of your accepting any such warranty or additional liability.
 
-   END OF TERMS AND CONDITIONS
+END OF TERMS AND CONDITIONS
 
-   APPENDIX: How to apply the Apache License to your work.
+-----
+
+APPENDIX: How to apply the Apache License to your work.
+-------------------------------------------------------
 
       To apply the Apache License to your work, attach the following
       boilerplate notice, with the fields enclosed by brackets "{}"
