@@ -1,3 +1,6 @@
 flake8
 tox
 six>=1.10
+coverage
+sphinx_rtd_theme
+codecov
