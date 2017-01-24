@@ -12,3 +12,5 @@ install:
 # command to run tests
 script:
    - codecov
+after_success:
+  - codecov
