@@ -78,8 +78,8 @@ class RepeatedTestFramework(object):
 
         if not issubclass(cls, unittest.TestCase):
             raise TypeError(
-                'Can only use RepeatedTestFramework '
-                'to decorate a unittest.TestCase')
+                'Invalid type: Decorator target is not '
+                'unittest.TestCase subclass')
 
         cls._RTF_DECORATED = True
         cls._RTF_METHODS = {}
