@@ -111,9 +111,6 @@ class TestErrorChecking(unittest.TestCase):
 
 class TestMethodGeneration(unittest.TestCase):
     def setUp(self):
-        # Empty class that can be decorated
-        class EmptyClass(unittest.TestCase):
-            pass
 
         # noinspection PyShadowingBuiltins,PyUnusedLocal
         def wrapper(index, input, expected_result):
@@ -123,7 +120,7 @@ class TestMethodGeneration(unittest.TestCase):
 
             return test_method
 
-        self.cls_ = EmptyClass
+        self.cls_ = type('EmptyClass', (unittest.TestCase, object,), {})
         self.test_method_ = wrapper
 
     @staticmethod
@@ -163,7 +160,8 @@ class TestMethodGeneration(unittest.TestCase):
                                                 i=index))
 
             # Make sure the method object is actually a method
-            self.assertTrue(inspect.ismethod(method),
+            self.assertTrue(inspect.ismethod(method) or
+                            inspect.isfunction(method),
                             "Item ({name}) is not a function".format(
                                 name=test_method_name))
 
@@ -198,9 +196,6 @@ class TestMethodGeneration(unittest.TestCase):
 
 class TestMethodExecution(unittest.TestCase):
     def setUp(self):
-        # Empty class that can be decorated
-        class EmptyClass(unittest.TestCase):
-            pass
 
         # noinspection PyUnusedLocal
         def wrapper(index, a, b):
@@ -210,7 +205,7 @@ class TestMethodExecution(unittest.TestCase):
 
             return test_method
 
-        self.cls_ = EmptyClass
+        self.cls_ = type('EmptyClass', (unittest.TestCase, object), {})
         self.test_method_ = wrapper
 
     @staticmethod
