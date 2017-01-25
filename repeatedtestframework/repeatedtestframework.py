@@ -22,9 +22,9 @@ import unittest
 
 # Python 3 introduced the collections.abc module (rather than simply collections)
 if _six.PY2:
-    from collections import Iterable
+    from collections import Iterable, Mapping
 else:
-    from collections.abc import Iterable
+    from collections.abc import Iterable, Mapping
 
 
 class RepeatedTestFramework( object ):
@@ -41,17 +41,17 @@ class RepeatedTestFramework( object ):
             :param test_cases : A list of tuples defining the actual test cases
         """
         if not self._isidentifier(test_name):
-            raise AttributeError('test_name value not able to be used in a method name')
+            raise ValueError('test_name value not able to be used in a method name')
         else:
             self._test_name = test_name
 
         if not (callable(test_method)):
-            raise AttributeError('test_method is not callable')
+            raise TypeError('test_method is not callable')
         else:
             self._method = test_method
 
         if not(isinstance(test_cases,Iterable)):
-            raise AttributeError('test_cases is not a valid Iterator')
+            raise TypeError('test_cases is not a valid Iterator')
         else:
             self._test_cases = test_cases
 
@@ -76,6 +76,9 @@ class RepeatedTestFramework( object ):
         cls._RTF_METHODS = {}
 
         for index, case in enumerate(self._test_cases):
+            if not isinstance(case, Mapping):
+                raise TypeError("test_cases item {} is not a Mapping".format(index))
+
             test_data = {'index':index}
             test_data.update(case)
 
@@ -101,10 +104,10 @@ def DecorateTestMethod( criteria=None, decorator_method=None, decorator_args=Non
     """
     # Double check the attribute validity
     if not (callable(criteria)):
-        raise AttributeError('criteria must be a callable')
+        raise TypeError('criteria is not callable')
 
     if not (callable(decorator_method)):
-        raise AttributeError('decorator_method must be a callable')
+        raise TypeError('decorator_method is not callable')
 
     if decorator_args is None:
         decorator_args = ()
@@ -122,7 +125,7 @@ def DecorateTestMethod( criteria=None, decorator_method=None, decorator_args=Non
 
         # Check the validity of the call arguments
         if not hasattr(cls,'_RTF_DECORATED'):
-            raise AttributeError('Incorrect usage; DecorateTestMethod can only be used to decorate TestCase class already decorated by RepeatedTestFramework')
+            raise TypeError('Incorrect usage; DecorateTestMethod can only be used to decorate TestCase class already decorated by RepeatedTestFramework')
 
         for name, data, method in _generated_methods(cls):
             if criteria(data):
@@ -168,10 +171,13 @@ def skipIf(condition, reason, criteria=lambda x:True):
                         This is the same as the criteria atrribute to the DecorateTestMethod
                         By default all methods will be skipped
     """
-    return DecorateTestMethod(criteria=criteria,
-                              decorator_method=unittest.skipIf,
-                              decorator_kwargs={'condition':condition,
-                                                'reason':reason})
+    if condition:
+        return DecorateTestMethod(criteria=criteria,
+                                  decorator_method=unittest.skipIf,
+                                  decorator_kwargs={'condition':condition,
+                                                    'reason':reason})
+    else:
+        return lambda x:x
 
 def skipUnless(condition, reason, criteria=lambda x:True):
     """Shortcut Decorator to allow conditional skiiping of methods based on test data
@@ -181,10 +187,13 @@ def skipUnless(condition, reason, criteria=lambda x:True):
                         This is the same as the criteria atrribute to the DecorateTestMethod
                         By default all methods will be skipped
     """
-    return DecorateTestMethod(criteria=criteria,
-                              decorator_method=unittest.skipUnless,
-                              decorator_kwargs={'condition':condition,
-                                                'reason':reason})
+    if not condition:
+        return DecorateTestMethod(criteria=criteria,
+                                  decorator_method=unittest.skipUnless,
+                                  decorator_kwargs={'condition':condition,
+                                                    'reason':reason})
+    else:
+        return lambda x:x
 
 def expectedFailure(criteria=lambda x:True):
     """Shortcut Decorator to allow conditional skiiping of methods based on test data

@@ -1,4 +1,5 @@
 from .repeatedtestframework import RepeatedTestFramework,\
+                                    DecorateTestMethod,\
                                     skip,\
                                     skipIf,\
                                     skipUnless,\
