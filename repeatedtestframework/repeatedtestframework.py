@@ -32,19 +32,66 @@ else:
 
 
 class RepeatedTestFramework(object):
-    """A decorator to construct repeated test methods """
+    """A decorator for unittest.TestCase class to auto-generate test methods
+       based on data list"""
 
     def __init__(self, test_name='',
                  test_method=None,
                  test_cases=None,
                  method_name_template="test_{index:03d}_{test_name}",
                  method_doc_template="{test_name} {index:03d}: "
-                                     "{input} {expected_result}"
+                                     "{test_data}"
                  ):
-        """A decorator to construct repeated test methods
-            :param test_name : A valid paython identifier for these tests
-            :param test_method : The actual test method to execute
-            :param test_cases : A list of tuples defining the actual test cases
+        """Decorates a ``unittest.TestCase`` class and automatically generates test cases based on the data sets
+
+        ``test_name`` must be a string which can be included in a
+        method name (i.e. alphabetic, numeric and underscore `_` only)
+
+        ``test_method`` is the function which executes the actual test.
+        By default the method should be function with the signature :
+
+            *test_method* (index: int, input: object, expected_result: object)
+
+        .. note::
+
+            Since the actual test methods on the unittest.TestCase are instance methods,
+            they expect to be passed only *self* as an arguemnt when called.
+
+            This means that
+            test_method **must** be a wrapping function which contains the actual
+            test exacution method as a closure. This is illustrated in the example code below
+
+        ``test_cases`` is a iterator for which each entry is a Mapping (for
+        instance a dict). Each dict is unpacked as arguments into the callable
+        specified by the test_method arguemnt. By default the dict should contain
+        the keys ``input``, and ``expected_results``, with the appropriate values
+        required to execute the tests.
+
+        ``method_name_template`` is a python format string which defines the name
+        of the test methods to be created.
+
+        ``method_doc_template`` is a python format string which defines the
+        documentation string of the test methods to be created.
+
+        Both the ``method_name_template`` and ``method_doc_template`` can contain
+        the following keys :
+
+            - ``test_name`` : the value is the string passed into `test_name`` attrribute.
+            - ``index`` : the value is the start from zero index of the appropriate entry in the `test_case` iterator for this test case
+            - ``test_data`` : the value is the appropriate entry within the test_cases iterator for this test case.
+
+        :param test_name: mandatory valid python identifier for these tests
+        :param test_method: mandatory the actual test method to execute
+        :param test_cases: mandatory a list of tuples defining the actual test cases
+        :param method_name_template: optional A format string for the test method name
+        :param method_doc_template: optional A format string for the test doc string
+
+        :type test_name: str
+        :type test_method: Callable
+        :type test_cases: list[ Mapping ]
+        :type method_name_template: str
+        :type method_doc_template: str
+
         """
         if not self._isidentifier(test_name):
             raise ValueError(
@@ -89,15 +136,16 @@ class RepeatedTestFramework(object):
                 raise TypeError(
                     "test_cases item {} is not a Mapping".format(index))
 
-            test_data = {'index': index}
-            test_data.update(case)
+            # Add in the test data as a single item
+            test_data = {'index': index, 'test_data':case}
 
-            test_method = self._method(**test_data)
+            # Pass test_data as individual arguments to the test method
+            test_method = self._method(index, **case)
 
             test_method.__name__ = self._method_name_template.format(
-                test_name=self._test_name, **test_data)
+                                    test_name=self._test_name, index = index, test_data=case)
             test_method.__doc__ = self._method_doc_template.format(
-                test_name=self._test_name, **test_data)
+                                  test_name=self._test_name, index = index, test_data=case)
             setattr(cls, test_method.__name__, test_method)
             cls._RTF_METHODS[test_method.__name__] = test_data
         return cls
@@ -134,15 +182,16 @@ def DecorateTestMethod(criteria=None, decorator_method=None,
     if decorator_kwargs is None:
         decorator_kwargs = {}
 
+    # noinspection PyProtectedMember
+    def _iter_method_data(cls_):
+        """Helper method to iterate around the data for each method """
+        for method_name, test_data in cls_._RTF_METHODS.items():
+            yield method_name, test_data['index'], test_data['test_data'], getattr(cls_, method_name)
+
     def class_wrapper(cls):
         """ Function returned by the decorator to wrap the class
             :param cls: An instance of the RepeatedTestFramework class
         """
-
-        # noinspection PyProtectedMember
-        def _generated_methods(cls_):
-            for method_name, test_data in cls_._RTF_METHODS.items():
-                yield method_name, test_data, getattr(cls_, method_name)
 
         # Check the validity of the call arguments
         if not hasattr(cls, '_RTF_DECORATED'):
@@ -151,7 +200,14 @@ def DecorateTestMethod(criteria=None, decorator_method=None,
                 'decorate a TestCase class which is already decorated '
                 'by RepeatedTestFramework')
 
-        for name, data, method in _generated_methods(cls):
+        for name, index, data, method in _iter_method_data(cls):
+
+            # Create a temp dictionary to allow unpacking of test data dictionary
+            # Unpacking within the dictionary initialiser is allowed in Py3 - but having
+            # a separate code segment of Py3 is overkill.
+            criteria_data = {'index':data}
+            criteria_data.update(**data)
+
             if criteria(data):
                 if decorator_args or decorator_kwargs:
                     new_method = decorator_method(
@@ -177,13 +233,14 @@ def DecorateTestMethod(criteria=None, decorator_method=None,
 # expectedFailure  - expectedFailure decorator of methods based on test data
 #
 
-def skip(reason, criteria=lambda x: True):
+def skip(reason, criteria=lambda test_data: True):
     """Shortcut Decorator to allow skip decorator of methods based on test data
-        :param reason - the reason string to be pasded to the decorator
-        :param criteria - A callable which will return True if a given method
-                        should be decorated. This is the same as the criteria
-                        attribute to the DecorateTestMethod
-                        By default all methods will be skipped
+
+    :param reason: the reason string to be pasded to the decorator
+    :param criteria: A callable which will return True if a given method
+                    should be decorated. This is the same as the criteria
+                    attribute to the DecorateTestMethod
+                    By default all methods will be skipped
     """
     return DecorateTestMethod(criteria=criteria,
                               decorator_method=unittest.skip,
@@ -191,50 +248,51 @@ def skip(reason, criteria=lambda x: True):
 
 
 # noinspection PyPep8Naming
-def skipIf(condition, reason, criteria=lambda x: True):
+def skipIf(condition, reason, criteria=lambda test_data: True):
     """Shortcut Decorator to allow skipIf decorator of methods based on test data
-        :param condition - Skip the decorated test if condition is true
-        :param reason - the reason string to be passed to the decorator
-        :param criteria - A callable which will return True if a given method
-                        should be decorated. This is the same as the criteria
-                        attribute to the DecorateTestMethod
-                        By default all methods will be skipped
+
+    :param condition: Skip the decorated test if condition is true
+    :param reason: the reason string to be passed to the decorator
+    :param criteria: A callable which will return True if a given method
+                    should be decorated. This is the same as the criteria
+                    attribute to the DecorateTestMethod
+                    By default all methods will be skipped
     """
     if condition:
         return DecorateTestMethod(criteria=criteria,
-                                  decorator_method=unittest.skipIf,
-                                  decorator_kwargs={'condition': condition,
-                                                    'reason': reason})
+                                  decorator_method=unittest.skip,
+                                  decorator_kwargs={'reason': reason})
     else:
         return lambda x: x
 
 
 # noinspection PyPep8Naming
-def skipUnless(condition, reason, criteria=lambda x: True):
+def skipUnless(condition, reason, criteria=lambda test_data: True):
     """Shortcut Decorator to allow skipunless decoration based on test data
-        :param condition - Skip the decorated test unless the condition is true
-        :param reason - the reason string to be passed to the decorator
-        :param criteria - A callable which will return True if a given method
-                        should be decorated. This is the same as the criteria
-                        atrribute to the DecorateTestMethod. By default all
-                        methods will be decorated
+
+    :param condition: Skip the decorated test unless the condition is true
+    :param reason: the reason string to be passed to the decorator
+    :param criteria: A callable which will return True if a given method
+                    should be decorated. This is the same as the criteria
+                    atrribute to the DecorateTestMethod. By default all
+                    methods will be decorated
     """
     if not condition:
         return DecorateTestMethod(criteria=criteria,
-                                  decorator_method=unittest.skipUnless,
-                                  decorator_kwargs={'condition': condition,
-                                                    'reason': reason})
+                                  decorator_method=unittest.skip,
+                                  decorator_kwargs={'reason': reason})
     else:
         return lambda x: x
 
 
 # noinspection PyPep8Naming
-def expectedFailure(criteria=lambda x: True):
+def expectedFailure(criteria=lambda test_data: True):
     """Shortcut allow expectedFailure to decorate methods based on test data
-        :param criteria - A callable which will return True if a given method
-                        should be decorated. This is the same as the criteria
-                        atrribute to the DecorateTestMethod
-                        By default all methods will be skipped
+
+    :param criteria: A callable which will return True if a given method
+                    should be decorated. This is the same as the criteria
+                    atrribute to the DecorateTestMethod
+                    By default all methods will be skipped
     """
     return DecorateTestMethod(criteria=criteria,
                               decorator_method=unittest.expectedFailure)
