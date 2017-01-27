@@ -3,8 +3,9 @@ Repeated Test Framework
 =======================
 
 
-.. image:: https://img.shields.io/pypi/v/repeatedtestframework.svg
-    :target: https://pypi.python.org/pypi/repeatedtestframework
+.. image:: https://img.shields.io/pypi/v/repeated-test-framework.svg
+    :target: https://pypi.python.org/pypi/repeated-test-framework
+
 
 .. image:: https://travis-ci.org/TonyFlury/repeatedtestframework.png?branch=master
     :target: https://travis-ci.org/TonyFlury/repeatedtestframework/
@@ -50,9 +51,9 @@ The Framework provides the following features :
    - Provides additional decorators allowing the application of ``unittest`` test method decorators (``skip``, ``skipIf`` etc) to one or more of the automatically generated test cases. Can also apply your own arbitrary test method decorators to the generated test case methods.
    - Can combine Automatically generated test methods and explicitly provided test method on the same ``unittest.TestCase`` class.
 
-See :doc:`Using the Framework <using>` for full details of how to use the Framework, including how to customise the Framework, and how to apply decorators to the generated test methods.
+See `Using the Framework`_ for full details of how to use the Framework, including how to customise the Framework, and how to apply decorators to the generated test methods.
 
-See :doc:`Why Use the Framework <WhyUse>` for a more detailed comparison of the Framework against other traditional ways of using the unittest module to achieve the same multiple test cases for the same functionality item with different data.
+See `Why Use the Framework`_ for a more detailed comparison of the Framework against other traditional ways of using the unittest module to achieve the same multiple test cases for the same functionality item with different data.
 
 ------------
 Installation
@@ -137,6 +138,8 @@ This software is covered by the provisions of `Apache Software License 2.0`_ Lic
 .. _Tony Flury: mailto:anthony.flury@btinternet.com?Subject=repeatedtestframework%20Error
 
 .. _Full Documentation: http://repeatedtestframework.readthedocs.org/en/latest/
+.. _Why Use the Framework: http://repeatedtestframework.readthedocs.io/en/latest/WhyUse.html
+.. _Using the Framework: http://repeatedtestframework.readthedocs.io/en/latest/using.html
 .. _On PyPi (Python Package Index): https://pypi.python.org/pypi/repeatedtestframework
 .. _Source code on GitHub: http://github.com/TonyFlury/repeatedtestframework
 .. _Apache Software License 2.0: http://repeatedtestframework.readthedocs.org/en/latest/LICENSE.rst
