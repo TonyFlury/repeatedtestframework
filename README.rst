@@ -63,13 +63,13 @@ Installation is very simple :
 
 .. code-block:: bash
 
-    $ pip install repeatedtestframework
+    $ pip install repeated-test-framework
 
 To upgrade an existing installation use
 
 .. code-block:: bash
 
-    $ pip install --upgrade repeatedtestframework
+    $ pip install --upgrade repeated-test-framework
 
 ---------------
 Getting Started
