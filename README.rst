@@ -34,22 +34,22 @@ The Framework provides the following features :
 
    - Uses a list of dictionaries (or any Iterable of mappings) to define the data for the test cases.
    - Requires only a single generic test function which takes the test case data and executes the test of the functionality.
-   - Can decorate a entirely empty ``unittest.TestCase`` class - no boiler plate coded needed within the class.
+   - Can decorate a entirely empty `unittest.TestCase`_ class - no boiler plate coded needed within the class.
    - Using the default settings, ensures a unique and predictable set of test method names, and useful documentation strings for each test case.
-   - The automatically generated test methods work correctly with ``unittest`` module default test detection, loaders, execution and reporting functionality.
-   - Supports the use of the normal commandline usage of the ``unittest`` module, including execution of specific test cases.
+   - The automatically generated test methods work correctly with `unittest module`_ module default test detection, loaders, execution and reporting functionality.
+   - Supports the use of the normal commandline usage of the `unittest module`_, including execution of specific test cases.
 
  - Behind the scenes
 
-   - Automatically generates a test method on a ``unittest.TestCase``, one for each entry the test data list/Iterable.
-   - By generating unique documentation strings and test names, ensures useful test result reporting from the ``unittest`` module.
+   - Automatically generates a test method on a `unittest.TestCase`_, one for each entry the test data list/Iterable.
+   - By generating unique documentation strings and test names, ensures useful test result reporting from the `unittest module`_.
    - By generating multiple test methods, ensures test separation so that testing continues after a test failure.
 
  - Also
 
    - Allows for customisation of the name and the documentation strings of the generated test method, using any of the data from the relevant test_case.
-   - Provides additional decorators allowing the application of ``unittest`` test method decorators (``skip``, ``skipIf`` etc) to one or more of the automatically generated test cases. Can also apply your own arbitrary test method decorators to the generated test case methods.
-   - Can combine Automatically generated test methods and explicitly provided test method on the same ``unittest.TestCase`` class.
+   - Provides additional decorators allowing the application of `unittest test method decorators`_ (``skip``, ``skipIf`` etc) to one or more of the automatically generated test cases. Can also apply your own arbitrary test method decorators to the generated test case methods.
+   - Can combine Automatically generated test methods and explicitly provided test method on the same `unittest.TestCase`_ class.
 
 See `Using the Framework`_ for full details of how to use the Framework, including how to customise the Framework, and how to apply decorators to the generated test methods.
 
@@ -104,7 +104,7 @@ Although the example above is trivial, it does illustrate the key features of th
  - A ``test_name`` attribute is provided - which is a human readable string which is included verbatim into the test method name - as such it can only include alphabetic, numeric and underscore (`_`) characters.
  - Regardless of the number of test data items the decorator only needs a a single test execution method (``test_method`` in the example) is required. The Framework replicates this method into the multiple test methods on the decorated class.
  - The framework does require the test function to be wrapped in method which accepts the attributes from the ``input_data`` iterator - in the example below this wrapping function is ``test_method_wrapper``. As shown in the example, the wrapper function it does not need to do anything at all other than wrap the test function, and accept the test data as a set of arguments which can then be used by the wrapped test function.
- - The ``unittest.TestCase`` class being decorated by the Framework can be entirely empty (as in the example), or it can include set Up and clear down methods as required by the test cases, or it could even include one or more `hand-written` test case methods (so long as the method names do not clash).
+ - The `unittest.TestCase`_ class being decorated by the Framework can be entirely empty (as in the example), or it can include set Up and clear down methods as required by the test cases, or it could even include one or more `hand-written` test case methods (so long as the method names do not clash).
 
 
 -------------------
@@ -140,6 +140,9 @@ This software is covered by the provisions of `Apache Software License 2.0`_ Lic
 .. _Full Documentation: http://repeatedtestframework.readthedocs.org/en/latest/
 .. _Why Use the Framework: http://repeatedtestframework.readthedocs.io/en/latest/WhyUse.html
 .. _Using the Framework: http://repeatedtestframework.readthedocs.io/en/latest/using.html
+.. _unittest module: https://docs.python.org/3.5/library/unittest.html
+.. _unittest.TestCase: https://docs.python.org/3.5/library/unittest.html#unittest.TestCase
+.. _unittest test method decorators: https://docs.python.org/3.5/library/unittest.html#unittest-skipping
 .. _On PyPi (Python Package Index): https://pypi.python.org/pypi/repeatedtestframework
 .. _Source code on GitHub: http://github.com/TonyFlury/repeatedtestframework
 .. _Apache Software License 2.0: http://repeatedtestframework.readthedocs.org/en/latest/LICENSE.rst
