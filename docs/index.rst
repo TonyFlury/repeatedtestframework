@@ -11,6 +11,7 @@ Basics
     readme
     WhyUse
     using
+    full-spec
     LICENSE
 
 Index

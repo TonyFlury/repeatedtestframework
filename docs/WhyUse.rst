@@ -151,23 +151,22 @@ Example 3 - Using the Repeated Test Framework
 
 .. code-block:: python
 
-    from RepeatedTestFramework import RepeatedTestFramework
+    from GenerateTestMethods import GenerateTestMethods
 
-    def test_method_wrapper(index, input, expected_result):
-        a, b = input[0], input[1]
+    def test_method_wrapper(index, a, b, result):
         def test_method(self):
             """The actual test method which gets replicated"""
-            self.assertEqual( a * b, expected_result)
+            self.assertEqual( a * b, result)
         return test_method_wrapper
 
-    @RepeatedTestFramework(
+    @GenerateTestMethods(
         test_name = 'test_multiplication',
         test_method = test_method_wrapper,
-        test_input = [
-                {'input':(1,2), 'expected_result':2 },
-                {'input':(2,2), 'expected_result':4 },
-                {'input':(3,2), 'expected_result':6 },
-                {'input':(3,4), 'expected_result':11 },]
+        test_cases = [
+                {'a':1,'b':2, 'result':2 },
+                {'a':2,'b':2, 'result':4 },
+                {'a':3,'b':2, 'result':6 },
+                {'a':3,'b':4, 'result':11 },]
             )
     class TestCases(unittest.TestCase):
         pass
@@ -178,21 +177,23 @@ As well as providing a simple method of generating many test cases, the Framewor
 
 In the above example the Framework will create the following test methods :
 
-+-------------------------------+----------------------------------+-----+-----+-------------------+
-| Test method name              | Documentation string             | *a* | *b* | *expected_result* |
-+===============================+==================================+=====+=====+===================+
-| test_001_test_multiplication  | test_multiplication 001 (1,2) 2  |  1  |  2  |        2          |
-+-------------------------------+----------------------------------+-----+-----+-------------------+
-| test_002_test_multiplication  | test_multiplication 002 (2,2) 4  |  2  |  2  |        2          |
-+-------------------------------+----------------------------------+-----+-----+-------------------+
-| test_003_test_multiplication  | test_multiplication 003 (3,2) 6  |  3  |  2  |        4          |
-+-------------------------------+----------------------------------+-----+-----+-------------------+
-| test_004_test_multiplication  | test_multiplication 004 (3,4) 11 |  3  |  4  |        6          |
-+-------------------------------+----------------------------------+-----+-----+-------------------+
++-------------------------------+---------------------------------------------------+---------+-----+----------------+
+|                                                                                   | Test method arguments          |
++-------------------------------+---------------------------------------------------+---------+-----+-----+----------+
+| Test method name              | Documentation string                              | *index* | *a* | *b* | *result* |
++===============================+===================================================+=========+=====+=====+==========+
+| test_000_test_multiplication  | test_multiplication 000 {'a':1,'b':2,'result':2}  |    0    |  1  |  2  |    2     |
++-------------------------------+---------------------------------------------------+---------+-----+-----+----------+
+| test_001_test_multiplication  | test_multiplication 001 {'a':2,'b':2,'result':4}  |    1    |  2  |  2  |    4     |
++-------------------------------+---------------------------------------------------+---------+-----+-----+----------+
+| test_002_test_multiplication  | test_multiplication 002 {'a':3,'b':2,'result':6}  |    2    |  3  |  2  |    6     |
++-------------------------------+---------------------------------------------------+---------+-----+-----+----------+
+| test_003_test_multiplication  | test_multiplication 003 {'a':3,'b':4,'result':11} |    3    |  3  |  4  |    11    |
++-------------------------------+---------------------------------------------------+---------+-----+-----+----------+
 
-From the above table it can be seen that by default the test method name includes an automatically generated index number, and the ``test_name`` attribute that is passed to the ``RepeatedTestFramework`` decorator. The documentation string by default includes the ``test_name`` attribute, the generated index, as well as both the ``input`` and ``expected_result`` values from the relevant item in the ``test_input`` list attribute. The generated index, and each item from the list is passed to the ``test_method`` function as a set of keywords attributes, which can be used by the ``test_method`` function in anyway required.
+From the above table it can be seen that by default the test method name includes an automatically generated index number, and the ``test_name`` attribute that is passed to the ``GenerateTestMethods`` decorator. The documentation string by default includes the ``test_name`` attribute, the generated index, as well as the data from the relevant item in the ``test_cases`` Iterator. The generated index, and each item test case data is passed to the ``test_method`` function as a set of keywords attributes, which can be used by the ``test_method`` function in anyway required.
 
-For full of how to use the framework including how to customise test names, how to decorate individual test cases, and some useful usage suggestions see :doc:`using`.
+For a guide on how to use the framework including how to customise test names, how to decorate individual test cases, and some useful usage suggestions see :doc:`using`; For a full specificiation of the decorators - see :doc:`full-spec`.
 
 
 .. _unittest: https://docs.python.org/3.5/library/unittest.html

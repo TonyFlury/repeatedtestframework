@@ -2,7 +2,7 @@
 # coding=utf-8
 """
 # repeatedtestframework : Functionality to support the creation of multiple
-                          test cases with the Unittest framwork
+                          test cases with the Unittest framework
 
 Summary :
     Helper functionality to reduce the amount of boiler plate or repeated
@@ -31,7 +31,7 @@ else:
     from collections.abc import Iterable, Mapping
 
 
-class RepeatedTestFramework(object):
+class GenerateTestMethods(object):
     """A decorator for unittest.TestCase class to auto-generate test methods
        based on data list"""
 
@@ -42,7 +42,7 @@ class RepeatedTestFramework(object):
                  method_doc_template="{test_name} {index:03d}: "
                                      "{test_data}"
                  ):
-        """Decorates a ``unittest.TestCase`` class and automatically generates test cases based on the data sets
+        """Automatically generates test cases based on the data sets
 
         ``test_name`` must be a string which can be included in a
         method name (i.e. alphabetic, numeric and underscore `_` only)
@@ -88,7 +88,7 @@ class RepeatedTestFramework(object):
 
         :type test_name: str
         :type test_method: Callable
-        :type test_cases: list[ Mapping ]
+        :type test_cases: list[ Mapping ] | None
         :type method_name_template: str
         :type method_doc_template: str
 
@@ -137,37 +137,35 @@ class RepeatedTestFramework(object):
                     "test_cases item {} is not a Mapping".format(index))
 
             # Add in the test data as a single item
-            test_data = {'index': index, 'test_data':case}
+            test_data = {'index': index, 'test_data': case}
 
             # Pass test_data as individual arguments to the test method
             test_method = self._method(index, **case)
 
             test_method.__name__ = self._method_name_template.format(
-                                    test_name=self._test_name, index = index, test_data=case)
+                test_name=self._test_name, index=index, test_data=case)
             test_method.__doc__ = self._method_doc_template.format(
-                                  test_name=self._test_name, index = index, test_data=case)
+                test_name=self._test_name, index=index, test_data=case)
             setattr(cls, test_method.__name__, test_method)
             cls._RTF_METHODS[test_method.__name__] = test_data
         return cls
 
 
 # noinspection PyPep8Naming
-def DecorateTestMethod(criteria=None, decorator_method=None,
+def DecorateTestMethod(criteria=lambda test_data: True, decorator_method=None,
                        decorator_args=None, decorator_kwargs=None):
-    """Allow for conditional decoration of any generated test method
+    """A decorator to allow generated test methods to be deocorated (e.g.. skipped)
 
-      :param criteria: A callable which will return boolean. The callable is
-                        passed a relevant item from test_input list
-                        (from the ``RepeatedTestFramework``) call. The
-                        ``criteria`` should return a boolean value which
-                        determines if the test method which will be generated
-                        for this test_input item should be deoctorated or not.
-      :param decorator_method: A decorator called which will be used to
-                               decorate the test_method.
-      :param decorator_args :  A typle of the positional arguments passed to
-                               the ``decorator_method`` callable.
-      :param decorator_kwargs : A dictionary of keyword arguments passed to
-                                the ``decorator_method`` callable.
+    :param criteria: A callable which will return boolean. The callable is passed a relevant item from test_input list (from the ``GenerateTestMethods``) call. The ``criteria`` should return a boolean value which determines if the test method which will be generated for this test_input item should be deoctorated or not.
+    :param decorator_method: A decorator called which will be used to decorate the test_method.
+    :param decorator_args:  A typle of the positional arguments passed to the ``decorator_method`` callable.
+    :param decorator_kwargs: A dictionary of keyword arguments passed to the ``decorator_method`` callable.
+
+    :type criteria: Callable -> Boolean
+    :type decorator_method: Callable -> Callable
+    :type decorator_args: tuple
+    :type decorator_kwargs: dict
+
     """
     # Double check the attribute validity
     if not (callable(criteria)):
@@ -186,11 +184,12 @@ def DecorateTestMethod(criteria=None, decorator_method=None,
     def _iter_method_data(cls_):
         """Helper method to iterate around the data for each method """
         for method_name, test_data in cls_._RTF_METHODS.items():
-            yield method_name, test_data['index'], test_data['test_data'], getattr(cls_, method_name)
+            yield method_name, test_data['index'], test_data[
+                'test_data'], getattr(cls_, method_name)
 
     def class_wrapper(cls):
         """ Function returned by the decorator to wrap the class
-            :param cls: An instance of the RepeatedTestFramework class
+            :param cls: An instance of the GenerateTestMethods class
         """
 
         # Check the validity of the call arguments
@@ -198,14 +197,14 @@ def DecorateTestMethod(criteria=None, decorator_method=None,
             raise TypeError(
                 'Incorrect usage; DecorateTestMethod can only be used to '
                 'decorate a TestCase class which is already decorated '
-                'by RepeatedTestFramework')
+                'by GenerateTestMethods')
 
         for name, index, data, method in _iter_method_data(cls):
 
             # Create a temp dictionary to allow unpacking of test data dictionary
             # Unpacking within the dictionary initialiser is allowed in Py3 - but having
             # a separate code segment of Py3 is overkill.
-            criteria_data = {'index':data}
+            criteria_data = {'index': data}
             criteria_data.update(**data)
 
             if criteria(data):
@@ -236,11 +235,11 @@ def DecorateTestMethod(criteria=None, decorator_method=None,
 def skip(reason, criteria=lambda test_data: True):
     """Shortcut Decorator to allow skip decorator of methods based on test data
 
-    :param reason: the reason string to be pasded to the decorator
-    :param criteria: A callable which will return True if a given method
-                    should be decorated. This is the same as the criteria
-                    attribute to the DecorateTestMethod
-                    By default all methods will be skipped
+    :param reason: the reason string to be passed to the decorator
+    :param criteria: A callable which will return True if a given method should be decorated. This is the same as the criteria attribute to the DecorateTestMethod. By default all methods will be skipped.
+
+    :type reason: str
+    :type criteria: callable(dict) -> bool
     """
     return DecorateTestMethod(criteria=criteria,
                               decorator_method=unittest.skip,
@@ -253,10 +252,11 @@ def skipIf(condition, reason, criteria=lambda test_data: True):
 
     :param condition: Skip the decorated test if condition is true
     :param reason: the reason string to be passed to the decorator
-    :param criteria: A callable which will return True if a given method
-                    should be decorated. This is the same as the criteria
-                    attribute to the DecorateTestMethod
-                    By default all methods will be skipped
+    :param criteria: A callable which will return True if a given method should be decorated. This is the same as the criteria attribute to the DecorateTestMethod. By default all methods will be skipped.
+
+    :type condition: bool
+    :type reason: str
+    :type criteria: callable(dict) -> bool
     """
     if condition:
         return DecorateTestMethod(criteria=criteria,
@@ -272,10 +272,11 @@ def skipUnless(condition, reason, criteria=lambda test_data: True):
 
     :param condition: Skip the decorated test unless the condition is true
     :param reason: the reason string to be passed to the decorator
-    :param criteria: A callable which will return True if a given method
-                    should be decorated. This is the same as the criteria
-                    atrribute to the DecorateTestMethod. By default all
-                    methods will be decorated
+    :param criteria: A callable which will return True if a given method should be decorated. This is the same as the criteria atrribute to the DecorateTestMethod. By default all methods will be decorated
+
+    :type condition: bool
+    :type reason: str
+    :type criteria: callable(dict) -> bool
     """
     if not condition:
         return DecorateTestMethod(criteria=criteria,
@@ -289,10 +290,9 @@ def skipUnless(condition, reason, criteria=lambda test_data: True):
 def expectedFailure(criteria=lambda test_data: True):
     """Shortcut allow expectedFailure to decorate methods based on test data
 
-    :param criteria: A callable which will return True if a given method
-                    should be decorated. This is the same as the criteria
-                    atrribute to the DecorateTestMethod
-                    By default all methods will be skipped
+    :param criteria: A callable which will return True if a given method should be decorated. This is the same as the criteria atrribute to the DecorateTestMethod. By default all methods will be skipped
+
+    :type criteria: callable(dict) -> bool
     """
     return DecorateTestMethod(criteria=criteria,
                               decorator_method=unittest.expectedFailure)

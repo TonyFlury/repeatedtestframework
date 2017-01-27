@@ -31,7 +31,7 @@
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = ['sphinx.ext.autodoc',
-    'sphinx.ext.coverage']
+              'sphinx.ext.coverage']
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['ytemplates']
@@ -77,7 +77,6 @@ pygments_style = 'sphinx'
 # If true, `todo` and `todoList` produce output, else they produce nothing.
 todo_include_todos = False
 
-
 # -- Options for HTML output ----------------------------------------------
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
@@ -96,12 +95,10 @@ html_theme = 'sphinx_rtd_theme'
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ['ystatic']
 
-
 # -- Options for HTMLHelp output ------------------------------------------
 
 # Output file base name for HTML help builder.
 htmlhelp_basename = 'RepeatedTestFrameworkdoc'
-
 
 # -- Options for LaTeX output ---------------------------------------------
 
@@ -127,20 +124,20 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-    (master_doc, 'RepeatedTestFramework.tex', u'Repeated Test Framework Documentation',
+    (master_doc, 'GenerateTestMethods.tex',
+     u'Repeated Test Framework Documentation',
      u'Tony Flury', 'manual'),
 ]
-
 
 # -- Options for manual page output ---------------------------------------
 
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    (master_doc, 'repeatedtestframework', u'Repeated Test Framework Documentation',
+    (master_doc, 'repeatedtestframework',
+     u'Repeated Test Framework Documentation',
      [author], 1)
 ]
-
 
 # -- Options for Texinfo output -------------------------------------------
 
@@ -148,10 +145,8 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-    (master_doc, 'RepeatedTestFramework', u'Repeated Test Framework Documentation',
-     author, 'RepeatedTestFramework', 'One line description of project.',
+    (master_doc, 'GenerateTestMethods',
+     u'Repeated Test Framework Documentation',
+     author, 'GenerateTestMethods', 'One line description of project.',
      'Miscellaneous'),
 ]
-
-
-

@@ -33,9 +33,9 @@ The Framework provides the following features :
 
    - Uses a list of dictionaries (or any Iterable of mappings) to define the data for the test cases.
    - Requires only a single generic test function which takes the test case data and executes the test of the functionality.
-   - Can decorate a entirely empty ``unittest.TestCase`` class - no boiler plate coded neede within the class.
+   - Can decorate a entirely empty ``unittest.TestCase`` class - no boiler plate coded needed within the class.
    - Using the default settings, ensures a unique and predictable set of test method names, and useful documentation strings for each test case.
-   - The automatically generated test methods work correctly with ``unitest`` module default test detection, loaders, execution and reporting functionality.
+   - The automatically generated test methods work correctly with ``unittest`` module default test detection, loaders, execution and reporting functionality.
    - Supports the use of the normal commandline usage of the ``unittest`` module, including execution of specific test cases.
 
  - Behind the scenes
@@ -47,12 +47,12 @@ The Framework provides the following features :
  - Also
 
    - Allows for customisation of the name and the documentation strings of the generated test method, using any of the data from the relevant test_case.
-   - Provides additional decorators allowing the application of ``unittest`` test method decorators (``skip``, ``skipIf`` etc) to one or more of the automatically generated test cases. Can also apply your own arbritary test method decorators to the generated test case methods.
+   - Provides additional decorators allowing the application of ``unittest`` test method decorators (``skip``, ``skipIf`` etc) to one or more of the automatically generated test cases. Can also apply your own arbitrary test method decorators to the generated test case methods.
    - Can combine Automatically generated test methods and explicitly provided test method on the same ``unittest.TestCase`` class.
 
 See :doc:`Using the Framework <using>` for full details of how to use the Framework, including how to customise the Framework, and how to apply decorators to the generated test methods.
 
-See :doc:`Why Use the Framework <WhyUse>` for a more detailed comparison of the Framework against other traditional ways of using the unittest module to acheive the same multiple test cases for the same functionality item with different data.
+See :doc:`Why Use the Framework <WhyUse>` for a more detailed comparison of the Framework against other traditional ways of using the unittest module to achieve the same multiple test cases for the same functionality item with different data.
 
 ------------
 Installation
@@ -74,12 +74,12 @@ To upgrade an existing installation use
 Getting Started
 ---------------
 
-The following code snippet will illustrate the simplest use of the Framework to excute a small number of test case
+The following code snippet will illustrate the simplest use of the Framework to execute a small number of test case
 against the multiplication operation - a trivial example which is still illustrative of the key points.
 
 .. code-block:: python
 
-    from RepeatedTestFramework import RepeatedTestFramework
+    from GenerateTestMethods import GenerateTestMethods
 
     def test_method_wrapper(index, a, b, result):
         def test_method(self):
@@ -87,7 +87,7 @@ against the multiplication operation - a trivial example which is still illustra
             self.assertEqual( a * b, result)
         return test_method_wrapper
 
-    @RepeatedTestFramework(
+    @GenerateTestMethods(
         test_name = 'test_multiplication',
         test_method = test_method_wrapper,
         test_input = [  {'a':1, 'b';2, 'result':2 },
@@ -97,12 +97,12 @@ against the multiplication operation - a trivial example which is still illustra
     class TestCases(unittest.TestCase):
         pass
 
-Although the exaample above is trivial, it does illustrate the key features of the framework as noted.
+Although the example above is trivial, it does illustrate the key features of the framework as noted.
 
- - The data to be used is provided as a list of dictionaries;  the ``input_data`` attribute on the RepeatdTestFramework decorator.
- - A ``test_name`` attrribute is provided - which is a human readable string which is included verbatim into the test method name - as such it can only include alphabetic, numeric and underscaore (`_`) characters.
+ - The data to be used is provided as a list of dictionaries;  the ``input_data`` attribute on the GenerateTestMethods decorator.
+ - A ``test_name`` attribute is provided - which is a human readable string which is included verbatim into the test method name - as such it can only include alphabetic, numeric and underscore (`_`) characters.
  - Regardless of the number of test data items the decorator only needs a a single test execution method (``test_method`` in the example) is required. The Framework replicates this method into the multiple test methods on the decorated class.
- - The framework does require the test function to be wrapped in method which accepts the attributes from the ``input_data`` iterator - in the example below this wrapping function is ``test_method_wrapper``. As shown in the example, the wrapper function it does not need to do anything at all other than wrap the test function, and accept the test data as a set of argumnents which can then be used by the wrapped test function.
+ - The framework does require the test function to be wrapped in method which accepts the attributes from the ``input_data`` iterator - in the example below this wrapping function is ``test_method_wrapper``. As shown in the example, the wrapper function it does not need to do anything at all other than wrap the test function, and accept the test data as a set of arguments which can then be used by the wrapped test function.
  - The ``unittest.TestCase`` class being decorated by the Framework can be entirely empty (as in the example), or it can include set Up and clear down methods as required by the test cases, or it could even include one or more `hand-written` test case methods (so long as the method names do not clash).
 
 

@@ -1,4 +1,4 @@
-from .repeatedtestframework import RepeatedTestFramework,\
+from .repeatedtestframework import GenerateTestMethods,\
                                     DecorateTestMethod,\
                                     skip,\
                                     skipIf,\

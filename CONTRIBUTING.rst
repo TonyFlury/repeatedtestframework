@@ -2,11 +2,9 @@
 
 To test : 
 
-    $ flake8 nhspy tests
-    $ python setup.py test or py.test
+    $ flake8 repeatedtestframework tests
+    $ python setup.py test
     $ tox
-
- 
 
 To build : 
 

@@ -17,7 +17,7 @@ import unittest
 import six
 import inspect
 
-from repeatedtestframework import RepeatedTestFramework
+from repeatedtestframework import GenerateTestMethods
 from repeatedtestframework import DecorateTestMethod
 from repeatedtestframework import skip
 from repeatedtestframework import skipIf
@@ -27,7 +27,6 @@ from repeatedtestframework import expectedFailure
 __version__ = "0.1"
 __author__ = 'Tony Flury : anthony.flury@btinternet.com'
 __created__ = '19 Jan 2017'
-
 
 
 class TestErrorChecking(unittest.TestCase):
@@ -44,7 +43,7 @@ class TestErrorChecking(unittest.TestCase):
         """Test that an empty test_name attribute is rejected"""
         with six.assertRaisesRegex(self, ValueError, r'.*test_name.*'):
             # Provide dummy values for test_method & test_cases
-            dec = RepeatedTestFramework(
+            dec = GenerateTestMethods(
                 test_name='',
                 test_method=lambda x: x,
                 test_cases=[{'dummy': None}])
@@ -53,7 +52,7 @@ class TestErrorChecking(unittest.TestCase):
     def test_011_InvalidTestNameBadCharacters(self):
         """Test that an invalid test_name attribute is rejected"""
         with six.assertRaisesRegex(self, ValueError, r'.*test_name.*'):
-            dec = RepeatedTestFramework(
+            dec = GenerateTestMethods(
                 test_name='this is an invalid name,#&',
                 test_method=lambda x: x,
                 test_cases=[{'dummy': None}])
@@ -61,7 +60,7 @@ class TestErrorChecking(unittest.TestCase):
     # noinspection PyUnusedLocal
     def test_019_ValidTestName(self):
         """Test that an valid test_name attribute is accepted"""
-        dec = RepeatedTestFramework(
+        dec = GenerateTestMethods(
             test_name='this_is_a_valid_name',
             test_method=lambda x: x,
             test_cases=[{'dummy': None}])
@@ -70,7 +69,7 @@ class TestErrorChecking(unittest.TestCase):
     def test_020_InvalidTestMethodNotCallable(self):
         """Confirm that an invalid test_method is rejected"""
         with six.assertRaisesRegex(self, TypeError, r'.*test_method.*'):
-            dec = RepeatedTestFramework(
+            dec = GenerateTestMethods(
                 test_name='this_is_a_valid_name',
                 test_method=None,
                 test_cases=[{'dummy': None}])
@@ -78,7 +77,7 @@ class TestErrorChecking(unittest.TestCase):
     # noinspection PyUnusedLocal
     def test_025_ValidTestMethod(self):
         """Confirm that an valid test_method is accepted"""
-        dec = RepeatedTestFramework(
+        dec = GenerateTestMethods(
             test_name='this_is_a_valid_name',
             test_method=lambda x: x,
             test_cases=[{'dummy': None}])
@@ -87,16 +86,16 @@ class TestErrorChecking(unittest.TestCase):
     def test_030_InValidTestCasesNone(self):
         """Confirm that an in valid test_case attribute is rejected"""
         with six.assertRaisesRegex(self, TypeError, r'.*test_cases.*'):
-            dec = RepeatedTestFramework(
+            dec = GenerateTestMethods(
                 test_name='this_is_a_valid_name',
                 test_method=lambda x: x,
                 test_cases=None)
 
-    # noinspection PyUnusedLocal
+    # noinspection PyUnusedLocal,PyTypeChecker
     def test_031_InValidTestCasesInt(self):
         """Confirm that an in valid test_case attribute is rejected"""
         with six.assertRaisesRegex(self, TypeError, r'.*test_cases.*'):
-            dec = RepeatedTestFramework(
+            dec = GenerateTestMethods(
                 test_name='this_is_a_valid_name',
                 test_method=lambda x: x,
                 test_cases=1)
@@ -105,7 +104,7 @@ class TestErrorChecking(unittest.TestCase):
     def test_035_InValidTestCasesNoMapping(self):
         """Confirm that an in valid test_case item is rejected"""
         with six.assertRaisesRegex(self, TypeError, r'.*test_cases.*'):
-            case_class = RepeatedTestFramework(
+            case_class = GenerateTestMethods(
                 test_name='this_is_a_valid_name',
                 test_method=lambda x: x,
                 test_cases=[(1, 1)])(self.cls_)
@@ -114,26 +113,28 @@ class TestErrorChecking(unittest.TestCase):
     def test_040_InvalidClass(self):
         """Test that an error is detected when a wrong class is decorated"""
         wrong_cls_ = type('WrongClass', (object,), {})
-        cls_dec = RepeatedTestFramework(
+        cls_dec = GenerateTestMethods(
             test_name='this_is_a_valid_name',
             test_method=lambda x: x,
-            test_cases=[{'a':1, 'b':1}] )
+            test_cases=[{'a': 1, 'b': 1}])
 
-        with six.assertRaisesRegex(self, TypeError, r'Invalid type.*not unittest.TestCase'):
+        with six.assertRaisesRegex(self, TypeError,
+                                   r'Invalid type.*not unittest.TestCase'):
             dec_cls = cls_dec(wrong_cls_)
 
 
 class TestMethodGeneration(unittest.TestCase):
-
     def setUp(self):
         """Do some setup for testing"""
 
         # noinspection PyShadowingBuiltins,PyUnusedLocal
-        def wrapper(index, input, expected_result):
-            """Wrappert for est method - default arguments"""
+        def wrapper(index, a, b):
+            """Wrapper for test method - default arguments"""
+
             # noinspection PyShadowingNames
             def test_method(self):
-                self.assertEqual(input + 1, expected_result)
+                self.assertEqual(a + 1, b)
+
             return test_method
 
         self.cls_ = type('EmptyClass', (unittest.TestCase, object,), {})
@@ -149,13 +150,13 @@ class TestMethodGeneration(unittest.TestCase):
     @staticmethod
     def _generate_test_data(num_test_cases):
         for i in range(0, num_test_cases):
-            yield {'input': i, 'expected_result': i + 1}
+            yield {'a': i, 'b': i + 1}
 
     def test_110_MethodGenerationTestNames(self):
         """Test that test_method with the correct names have been generated"""
         test_name = "MethodGeneration"
         num_test_cases = 3
-        case_cls_ = RepeatedTestFramework(
+        case_cls_ = GenerateTestMethods(
             test_name=test_name,
             test_method=self.test_method_,
             test_cases=self._generate_test_data(num_test_cases)
@@ -173,8 +174,8 @@ class TestMethodGeneration(unittest.TestCase):
             self.assertIsNotNone(method,
                                  msg='Failed to generate the test_method'
                                      ' name ({name}) for index {i}'.format(
-                                                name=test_method_name,
-                                                i=index))
+                                     name=test_method_name,
+                                     i=index))
 
             # Make sure the method object is actually a method
             self.assertTrue(inspect.ismethod(method) or
@@ -188,7 +189,7 @@ class TestMethodGeneration(unittest.TestCase):
         test_name = "MethodGeneration"
         num_test_cases = 3
         # Wrap the class with the decorator
-        case_cls_ = RepeatedTestFramework(
+        case_cls_ = GenerateTestMethods(
             test_name=test_name,
             test_method=self.test_method_,
             test_cases=self._generate_test_data(num_test_cases)
@@ -197,23 +198,19 @@ class TestMethodGeneration(unittest.TestCase):
         for index, test_info in enumerate(zip(
                 self._generate_test_method_name(test_name, num_test_cases),
                 self._generate_test_data(num_test_cases))):
-
             # Extract associated name and data - and get the method object
             test_method_name, test_data = test_info[0], test_info[1]
             method = getattr(case_cls_, test_method_name, None)
 
             self.assertEqual(method.__doc__,
-                             "{test_name} {index:03d}: {input} "
-                             "{expected_result}".format(
+                             "{test_name} {index:03d}: {test_data}".format(
                                  test_name=test_name,
                                  index=index,
-                                 input=test_data['input'],
-                                 expected_result=test_data['expected_result']))
+                                 test_data=test_data))
 
 
 class TestMethodExecution(unittest.TestCase):
     def setUp(self):
-
         # noinspection PyUnusedLocal
         def wrapper(index, a, b):
             # noinspection PyShadowingNames
@@ -242,14 +239,12 @@ class TestMethodExecution(unittest.TestCase):
         test_name = "MethodExecution"
         num_test_cases = 3
         # Wrap the class with the decorator
-        case_cls_ = RepeatedTestFramework(
+        case_cls_ = GenerateTestMethods(
             test_name=test_name,
             test_method=self.test_method_,
             test_cases=[{'a': 1, 'b': 2},
                         {'a': 2, 'b': 3},
-                        {'a': 3, 'b': 4}, ],
-            method_doc_template="{test_name} {index:03d}: {a} {b}")(
-            self.cls_)
+                        {'a': 3, 'b': 4}, ])(self.cls_)
 
         summary, result = self._run_tests(case_cls_)
 
@@ -260,14 +255,12 @@ class TestMethodExecution(unittest.TestCase):
         test_name = 'MethodExecution'
         num_test_cases = 3
         # Wrap the class with the decorator - force one error from 3
-        case_cls_ = RepeatedTestFramework(
+        case_cls_ = GenerateTestMethods(
             test_name=test_name,
             test_method=self.test_method_,
             test_cases=[{'a': 1, 'b': 2},
                         {'a': 2, 'b': 3},
-                        {'a': 3, 'b': 3}, ],
-            method_doc_template="""{test_name} {index:03d}: {a} {b}""")(
-            self.cls_)
+                        {'a': 3, 'b': 3}, ])(self.cls_)
 
         summary, result = self._run_tests(case_cls_)
 
@@ -283,14 +276,12 @@ class TestMethodExecution(unittest.TestCase):
         test_name = 'MethodExecution'
         num_test_cases = 3
         # Wrap the class with the decorator - force one error from 3
-        case_cls_ = RepeatedTestFramework(
+        case_cls_ = GenerateTestMethods(
             test_name=test_name,
             test_method=self.test_method_,
             test_cases=[{'a': 1, 'b': 2},
                         {'a': 2, 'b': 4},
-                        {'a': 3, 'b': 3}, ],
-            method_doc_template="""{test_name} {index:03d}: {a} {b}""")(
-            self.cls_)
+                        {'a': 3, 'b': 3}, ])(self.cls_)
 
         summary, result = self._run_tests(case_cls_)
 
@@ -305,6 +296,7 @@ class TestMethodExecution(unittest.TestCase):
                          'EmptyClass.test_002_MethodExecution'
                          )
 
+
 class DecoratedTestExecution(unittest.TestCase):
     def setUp(self):
         # noinspection PyUnusedLocal
@@ -316,7 +308,7 @@ class DecoratedTestExecution(unittest.TestCase):
             return test_method
 
         self.cls_ = type('EmptyClass', (unittest.TestCase, object), {})
-        self.test_method_ = wrapper
+        self.test_method = wrapper
 
     @staticmethod
     def _run_tests(test_class):
@@ -370,13 +362,12 @@ class DecoratedTestExecution(unittest.TestCase):
             decorator_method=unittest.skip,
             decorator_kwargs={'reason': 'Skipped because a == 1'})
 
-        case_dec_ = RepeatedTestFramework(
+        case_dec_ = GenerateTestMethods(
             test_name=test_name,
-            test_method=self.test_method_,
+            test_method=self.test_method,
             test_cases=[{'a': 1, 'b': 2},
                         {'a': 2, 'b': 3},
-                        {'a': 3, 'b': 4}, ],
-            method_doc_template="""{test_name} {index:03d}: {a} {b}""")
+                        {'a': 3, 'b': 4}, ])
 
         case_cls_ = skip_dec(case_dec_(self.cls_))
         summary, result = self._run_tests(case_cls_)
@@ -394,15 +385,14 @@ class DecoratedTestExecution(unittest.TestCase):
         skip_dec = DecorateTestMethod(
             criteria=lambda data: data['a'] == 1,
             decorator_method=unittest.skip,
-            decorator_args=('Skipped because a == 1',) )
+            decorator_args=('Skipped because a == 1',))
 
-        case_dec_ = RepeatedTestFramework(
+        case_dec_ = GenerateTestMethods(
             test_name=test_name,
-            test_method=self.test_method_,
+            test_method=self.test_method,
             test_cases=[{'a': 1, 'b': 2},
                         {'a': 2, 'b': 3},
-                        {'a': 3, 'b': 4}, ],
-            method_doc_template="""{test_name} {index:03d}: {a} {b}""")
+                        {'a': 3, 'b': 4}, ])
 
         case_cls_ = skip_dec(case_dec_(self.cls_))
         summary, result = self._run_tests(case_cls_)
@@ -427,13 +417,12 @@ class DecoratedTestExecution(unittest.TestCase):
             decorator_method=unittest.skip,
             decorator_kwargs={'reason': 'Skipped because a == 1'})
 
-        case_dec_ = RepeatedTestFramework(
+        case_dec_ = GenerateTestMethods(
             test_name=test_name,
-            test_method=self.test_method_,
+            test_method=self.test_method,
             test_cases=[{'a': 1, 'b': 2},
                         {'a': 2, 'b': 3},
-                        {'a': 3, 'b': 5}, ],
-            method_doc_template="""{test_name} {index:03d}: {a} {b}""")
+                        {'a': 3, 'b': 5}, ])
 
         case_cls_ = expected_fail(skip_dec(case_dec_(self.cls_)))
         summary, result = self._run_tests(case_cls_)
@@ -456,13 +445,12 @@ class DecoratedTestExecution(unittest.TestCase):
             criteria=lambda data: data['a'] == 1,
             reason='Skipped because a == 1')
 
-        case_dec_ = RepeatedTestFramework(
+        case_dec_ = GenerateTestMethods(
             test_name=test_name,
-            test_method=self.test_method_,
+            test_method=self.test_method,
             test_cases=[{'a': 1, 'b': 2},
                         {'a': 2, 'b': 3},
-                        {'a': 3, 'b': 4}, ],
-            method_doc_template="""{test_name} {index:03d}: {a} {b}""")
+                        {'a': 3, 'b': 4}, ])
 
         case_cls_ = skip_dec(case_dec_(self.cls_))
         summary, result = self._run_tests(case_cls_)
@@ -480,13 +468,12 @@ class DecoratedTestExecution(unittest.TestCase):
         skip_dec = skip(
             reason='Skipped because a == 1')
 
-        case_dec_ = RepeatedTestFramework(
+        case_dec_ = GenerateTestMethods(
             test_name=test_name,
-            test_method=self.test_method_,
+            test_method=self.test_method,
             test_cases=[{'a': 1, 'b': 2},
                         {'a': 2, 'b': 3},
-                        {'a': 3, 'b': 4}, ],
-            method_doc_template="""{test_name} {index:03d}: {a} {b}""")
+                        {'a': 3, 'b': 4}, ])
 
         case_cls_ = skip_dec(case_dec_(self.cls_))
         summary, result = self._run_tests(case_cls_)
@@ -515,13 +502,12 @@ class DecoratedTestExecution(unittest.TestCase):
             criteria=lambda data: data['a'] == 1,
             reason='Skipped because a == 1')
 
-        case_dec_ = RepeatedTestFramework(
+        case_dec_ = GenerateTestMethods(
             test_name=test_name,
-            test_method=self.test_method_,
+            test_method=self.test_method,
             test_cases=[{'a': 1, 'b': 2},
                         {'a': 2, 'b': 3},
-                        {'a': 3, 'b': 4}, ],
-            method_doc_template="""{test_name} {index:03d}: {a} {b}""")
+                        {'a': 3, 'b': 4}, ])
 
         case_cls_ = skip_dec(case_dec_(self.cls_))
         summary, result = self._run_tests(case_cls_)
@@ -541,13 +527,12 @@ class DecoratedTestExecution(unittest.TestCase):
             condition=(test_value >= 2),
             reason='Skipped because a == 1')
 
-        case_dec_ = RepeatedTestFramework(
+        case_dec_ = GenerateTestMethods(
             test_name=test_name,
-            test_method=self.test_method_,
+            test_method=self.test_method,
             test_cases=[{'a': 1, 'b': 2},
                         {'a': 2, 'b': 3},
-                        {'a': 3, 'b': 4}, ],
-            method_doc_template="""{test_name} {index:03d}: {a} {b}""")
+                        {'a': 3, 'b': 4}, ])
 
         case_cls_ = skip_dec(case_dec_(self.cls_))
         summary, result = self._run_tests(case_cls_)
@@ -576,13 +561,12 @@ class DecoratedTestExecution(unittest.TestCase):
             criteria=lambda data: data['a'] == 1,
             reason='Skipped because a == 1')
 
-        case_dec_ = RepeatedTestFramework(
+        case_dec_ = GenerateTestMethods(
             test_name=test_name,
-            test_method=self.test_method_,
+            test_method=self.test_method,
             test_cases=[{'a': 1, 'b': 2},
                         {'a': 2, 'b': 3},
-                        {'a': 3, 'b': 4}, ],
-            method_doc_template="""{test_name} {index:03d}: {a} {b}""")
+                        {'a': 3, 'b': 4}, ])
 
         case_cls_ = skip_dec(case_dec_(self.cls_))
         summary, result = self._run_tests(case_cls_)
@@ -599,13 +583,12 @@ class DecoratedTestExecution(unittest.TestCase):
             criteria=lambda data: data['a'] == 1,
             reason='Skipped because a == 1')
 
-        case_dec_ = RepeatedTestFramework(
+        case_dec_ = GenerateTestMethods(
             test_name=test_name,
-            test_method=self.test_method_,
+            test_method=self.test_method,
             test_cases=[{'a': 1, 'b': 2},
                         {'a': 2, 'b': 3},
-                        {'a': 3, 'b': 4}, ],
-            method_doc_template="""{test_name} {index:03d}: {a} {b}""")
+                        {'a': 3, 'b': 4}, ])
 
         case_cls_ = skip_dec(case_dec_(self.cls_))
         summary, result = self._run_tests(case_cls_)
@@ -625,13 +608,12 @@ class DecoratedTestExecution(unittest.TestCase):
             condition=(test_value >= 4),
             reason='Skipped because a == 1')
 
-        case_dec_ = RepeatedTestFramework(
+        case_dec_ = GenerateTestMethods(
             test_name=test_name,
-            test_method=self.test_method_,
+            test_method=self.test_method,
             test_cases=[{'a': 1, 'b': 2},
                         {'a': 2, 'b': 3},
-                        {'a': 3, 'b': 4}, ],
-            method_doc_template="""{test_name} {index:03d}: {a} {b}""")
+                        {'a': 3, 'b': 4}, ])
 
         case_cls_ = skip_dec(case_dec_(self.cls_))
         summary, result = self._run_tests(case_cls_)
@@ -651,7 +633,6 @@ class DecoratedTestExecution(unittest.TestCase):
                          'EmptyClass.test_002_MethodExecution'
                          )
 
-
     def test_368_SkipUnlessShortcutTestConditionTrue(self):
         """Confirm the SkipUnless decorator works when condition == False"""
         test_name = 'MethodExecution'
@@ -661,13 +642,12 @@ class DecoratedTestExecution(unittest.TestCase):
             criteria=lambda data: data['a'] == 1,
             reason='Skipped because a == 1')
 
-        case_dec_ = RepeatedTestFramework(
+        case_dec_ = GenerateTestMethods(
             test_name=test_name,
-            test_method=self.test_method_,
+            test_method=self.test_method,
             test_cases=[{'a': 1, 'b': 2},
                         {'a': 2, 'b': 3},
-                        {'a': 3, 'b': 4}, ],
-            method_doc_template="""{test_name} {index:03d}: {a} {b}""")
+                        {'a': 3, 'b': 4}, ])
 
         case_cls_ = skip_dec(case_dec_(self.cls_))
         summary, result = self._run_tests(case_cls_)
@@ -681,13 +661,12 @@ class DecoratedTestExecution(unittest.TestCase):
         expected_fail = expectedFailure(
             criteria=lambda data: data['a'] == 1)
 
-        case_dec_ = RepeatedTestFramework(
+        case_dec_ = GenerateTestMethods(
             test_name=test_name,
-            test_method=self.test_method_,
+            test_method=self.test_method,
             test_cases=[{'a': 1, 'b': 1},
                         {'a': 2, 'b': 3},
-                        {'a': 3, 'b': 4}, ],
-            method_doc_template="""{test_name} {index:03d}: {a} {b}""")
+                        {'a': 3, 'b': 4}, ])
 
         case_cls_ = expected_fail(case_dec_(self.cls_))
         summary, result = self._run_tests(case_cls_)
@@ -704,13 +683,12 @@ class DecoratedTestExecution(unittest.TestCase):
         test_name = 'MethodExecution'
         expected_fail = expectedFailure()
 
-        case_dec_ = RepeatedTestFramework(
+        case_dec_ = GenerateTestMethods(
             test_name=test_name,
-            test_method=self.test_method_,
+            test_method=self.test_method,
             test_cases=[{'a': 1, 'b': 1},
                         {'a': 2, 'b': 3},
-                        {'a': 3, 'b': 4}, ],
-            method_doc_template="""{test_name} {index:03d}: {a} {b}""")
+                        {'a': 3, 'b': 4}, ])
 
         case_cls_ = expected_fail(case_dec_(self.cls_))
         summary, result = self._run_tests(case_cls_)
@@ -730,19 +708,18 @@ class DecoratedTestExecution(unittest.TestCase):
                          'EmptyClass.test_002_MethodExecution'
                          )
 
-    def test_378_ExpectedFailureShortcutTestUnexpecteSuccess(self):
+    def test_378_ExpectedFailureShortcutTestUnexpectedSuccess(self):
         """Confirm the ExpectedFailure decorator works when the test works"""
         test_name = 'MethodExecution'
         expected_fail = expectedFailure(
             criteria=lambda data: data['a'] == 1)
 
-        case_dec_ = RepeatedTestFramework(
+        case_dec_ = GenerateTestMethods(
             test_name=test_name,
-            test_method=self.test_method_,
+            test_method=self.test_method,
             test_cases=[{'a': 1, 'b': 2},
                         {'a': 2, 'b': 3},
-                        {'a': 3, 'b': 4}, ],
-            method_doc_template="""{test_name} {index:03d}: {a} {b}""")
+                        {'a': 3, 'b': 4}, ])
 
         case_cls_ = expected_fail(case_dec_(self.cls_))
         summary, result = self._run_tests(case_cls_)
@@ -757,8 +734,8 @@ class DecoratedTestExecution(unittest.TestCase):
 
 # noinspection PyUnusedLocal
 def load_tests(loader, tests=None, pattern=None):
-    classes = [TestErrorChecking, 
-               TestMethodGeneration, 
+    classes = [TestErrorChecking,
+               TestMethodGeneration,
                TestMethodExecution,
                DecoratedTestExecution]
     suite = unittest.TestSuite()

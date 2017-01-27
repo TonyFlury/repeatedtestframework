@@ -11,7 +11,7 @@ from setuptools import setup, find_packages
 from codecs import open
 from os import path
 
-import repeatedtestframework.version
+from repeatedtestframework import __version__ as version
 
 __author__ = 'Tony Flury anthony.flury@btinternet.com'
 __created__ = '18 Jan 2017'
@@ -28,9 +28,12 @@ setup(
     # Versions should comply with PEP440.  For a discussion on single-sourcing
     # the version across setup.py and the project code, see
     # https://packaging.python.org/en/latest/single_source_version.html
-    version=repeatedtestframework.version.__version__,
+    version=version,
 
-    description='Repeated Test Framework: Helper functionality to reduce the amount of boiler plate or repeated code which is implemented when the same functionality is tested multiple times with the different data.',
+    description='Repeated Test Framework: Helper functionality to reduce the '
+                'amount of boiler plate or repeated code which is implemented '
+                'when the same functionality is tested multiple times with '
+                'different data.',
     long_description=long_description,
 
     # The project's main homepage.
