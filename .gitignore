@@ -2,9 +2,9 @@
 .idea/**
 build/**
 dist/**
-docs/_build/**
-doc/_build_html/**
-docs/_static/**
-docs/_templates/**
+docs/build/**
+docs/ystatic/**
+docs/ytemplates/**
 htmlcov/**
-repeatedtestframework.egg-info/**
+Repeated_Test_Framework.egg-info
+docs/Repeated_Test_Framework.egg-info
