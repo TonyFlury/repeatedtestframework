@@ -254,15 +254,18 @@ The framework also provides a method for applying any decorator method to the au
 
 .. code-block:: python
 
-    *@repeatedtestframework*DecorateTestMethod(
+    repeatedtestframework.DecorateTestMethod(
                        criteria=lambda test_data: True, decorator_method=None,
                        decorator_args=None, decorator_kwargs=None)
 
 
- - ``criteria`` : as above a callable which is called for each test method, and is passed the test data dictionary appropriate to that method with the index added. The criteria should return True for all test_method to which the decorator should be applied, and False in all other cases.
- - ``decorator_method`` : A callable which is the actual method with which the test method should be generated
- - ``decorator_args``: A tuple for the positional arguments for the decorator_method
- - ``decorator_kwargs``: A dictionary for the kwargs argument for the decorator_method
+The generic decorator has the following arguemnts
+
+    - ``criteria`` : as above a callable which is called for each test method, and is passed the test data dictionary appropriate to that method with the index added. The criteria should return True for all test_method to which the decorator should be applied, and False in all other cases.
+    - ``decorator_method`` : A callable which is the actual method with which the test method should be generated
+    - ``decorator_args``: A tuple for the positional arguments for the decorator_method
+    - ``decorator_kwargs``: A dictionary for the kwargs argument for the decorator_method
+
 
 
 The example below shows using the DecorateTestMethod call as an alternative to the `skip` method as shown in :ref:`DecoratorExample`
