@@ -29,7 +29,7 @@ This first example illustrates using the Framework with default settings.
     :caption: Example simple usage
     :name: UsingExample1
 
-    from GenerateTestMethods import GenerateTestMethods
+    from repeatedtestFramework import GenerateTestMethods
 
     def test_method_wrapper(index, a, b, result):
         """Wrapper for the test_method"""
@@ -182,8 +182,8 @@ The ``skip`` decorator is shown in the example below - all of the other decorato
     :caption: Decorator Example Usage
     :name: DecoratorExample
 
-    from GenerateTestMethods import GenerateTestMethods
-    from GenerateTestMethods import skip
+    from repeatedtestframework import GenerateTestMethods
+    from repeatedtestframework import skip
 
     def test_method_wrapper(index, a, b, result):
         """Wrapper for the test_method"""
@@ -224,8 +224,8 @@ As mentioned above :ref:`Customisation`, the test data can include arbitrary key
     :caption: Key use by Decorator
     :name: DecoratorAndDataKeyExample
 
-    from GenerateTestMethods import GenerateTestMethods
-    from GenerateTestMethods import skip
+    from repeatedtestframework import GenerateTestMethods
+    from repeatedtestframework import skip
 
     def test_method_wrapper(index, a, b, result):
         """Wrapper for the test_method"""
@@ -274,8 +274,8 @@ The example below shows using the DecorateTestMethod call as an alternative to t
 
     import unittest
 
-    from GenerateTestMethods import GenerateTestMethods
-    from GenerateTestMethods import DecorateTestMethod
+    from repeatedtestframework import GenerateTestMethods
+    from repeatedtestframework import DecorateTestMethod
 
     def test_method_wrapper(index, a, b, result):
         """Wrapper for the test_method"""

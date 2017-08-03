@@ -151,7 +151,7 @@ Example 3 - Using the Repeated Test Framework
 
 .. code-block:: python
 
-    from GenerateTestMethods import GenerateTestMethods
+    from repeatedtestframework import GenerateTestMethods
 
     def test_method_wrapper(index, a, b, result):
         def test_method(self):
