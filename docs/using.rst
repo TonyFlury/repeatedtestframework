@@ -36,7 +36,7 @@ This first example illustrates using the Framework with default settings.
         def test_method(self):
             """The actual test method which gets replicated"""
             self.assertEqual( a * b, result)
-        return test_method_wrapper
+        return test_method
 
     @GenerateTestMethods(
         test_name = 'test_multiplication',
@@ -190,7 +190,7 @@ The ``skip`` decorator is shown in the example below - all of the other decorato
         def test_method(self):
             """The actual test method which gets replicated"""
             self.assertEqual( a * b, result)
-        return test_method_wrapper
+        return test_method
 
     @skip("This is a very boring test",
         criteria = lambda test_data : test_data['a'] == 1)
@@ -232,7 +232,7 @@ As mentioned above :ref:`Customisation`, the test data can include arbitrary key
         def test_method(self):
             """The actual test method which gets replicated"""
             self.assertEqual( a * b, result)
-        return test_method_wrapper
+        return test_method
 
     @skip("This is a very boring test",
         criteria = lambda test_data : test_data.get('skip', False))
@@ -285,7 +285,7 @@ The example below shows using the DecorateTestMethod call as an alternative to t
         def test_method(self):
             """The actual test method which gets replicated"""
             self.assertEqual( a * b, result)
-        return test_method_wrapper
+        return test_method
 
 
     @DecorateTestMethod( decorator_method = unittest.skip,

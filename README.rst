@@ -86,7 +86,7 @@ against the multiplication operation - a trivial example which is still illustra
         def test_method(self):
             """The actual test method which gets replicated"""
             self.assertEqual( a * b, result)
-        return test_method_wrapper
+        return test_method
 
     @GenerateTestMethods(
         test_name = 'test_multiplication',
